@@ -16,9 +16,12 @@ namespace ScarletMVC
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly IWebHostEnvironment env;
+
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            this.env = env;
         }
 
         public IConfiguration Configuration { get; }
@@ -34,9 +37,9 @@ namespace ScarletMVC
             })
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options => {
-                options.Authority = Configuration["InteractiveServiceSettings:AuthorityUrl"];
-                options.ClientId = Configuration["InteractiveServiceSettings:ClientId"];
-                options.ClientSecret = Configuration["InteractiveServiceSettings:ClientSecret"];
+                options.Authority = Configuration[$"InteractiveServiceSettings:{env.EnvironmentName}:AuthorityUrl"];
+                options.ClientId = Configuration[$"InteractiveServiceSettings:{env.EnvironmentName}:ClientId"];
+                options.ClientSecret = Configuration[$"InteractiveServiceSettings:{env.EnvironmentName}:ClientSecret"];
 
                 options.ResponseType = "code";
                 options.UsePkce = true;
@@ -46,12 +49,12 @@ namespace ScarletMVC
                 options.SaveTokens = true;
             });
 
-            services.Configure<IdentityServerSettings>(Configuration.GetSection("IdentityServerSettings"));
+            services.Configure<IdentityServerSettings>(Configuration.GetSection($"IdentityServerSettings:{env.EnvironmentName}"));
             services.AddTransient<ITokenService, TokenService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
             if (env.IsDevelopment())
             {
