@@ -1,0 +1,20 @@
+@model IEnumerable<WeatherData>
+
+@{
+    ViewBag.Title = "Weather";
+    Layout = "_Layout";
+}
+
+<h2>Weather</h2>
+
+<table>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.date</td>
+            <td>@item.summary</td>
+            <td>@item.temperatureF</td>
+            <td>@item.temperatureC</td>
+        </tr>
+    }
+</table>
