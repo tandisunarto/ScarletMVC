@@ -49,6 +49,7 @@ namespace ScarletMVC
                 options.SaveTokens = true;
             });
 
+            services.Configure<OtherSettings>(Configuration.GetSection($"OtherSettings:{env.EnvironmentName}"));
             services.Configure<IdentityServerSettings>(Configuration.GetSection($"IdentityServerSettings:{env.EnvironmentName}"));
             services.AddTransient<ITokenService, TokenService>();
         }

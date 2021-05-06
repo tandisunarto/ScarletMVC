@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -10,6 +9,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using ScarletMVC.Models;
 using ScarletMVC.Services;
 
@@ -17,14 +17,17 @@ namespace ScarletMVC.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IOptions<OtherSettings> otherSettings;
         private readonly ILogger<HomeController> _logger;
         private readonly ITokenService tokenService;
 
         public HomeController(
+            IOptions<OtherSettings> otherSettings,
             ILogger<HomeController> logger,
             ITokenService tokenService)
         {
             _logger = logger;
+            this.otherSettings = otherSettings;
             this.tokenService = tokenService;
         }
 
@@ -51,7 +54,7 @@ namespace ScarletMVC.Controllers
 
             httpClient.SetBearerToken(tokenResponse.AccessToken);
 
-            var response = await httpClient.GetAsync("https://localhost:5011/weatherforecast");
+            var response = await httpClient.GetAsync($"{otherSettings.Value.WebApiUrl}/weatherforecast");
             
             if (response.IsSuccessStatusCode)
             {
