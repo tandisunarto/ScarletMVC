@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -33,20 +34,13 @@ namespace ScarletMVC
 
             services.AddAuthentication(options => {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
             })
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options => {
-                options.Authority = Configuration[$"InteractiveServiceSettings:{env.EnvironmentName}:AuthorityUrl"];
-                options.ClientId = Configuration[$"InteractiveServiceSettings:{env.EnvironmentName}:ClientId"];
-                options.ClientSecret = Configuration[$"InteractiveServiceSettings:{env.EnvironmentName}:ClientSecret"];
-
-                options.ResponseType = "code";
-                options.UsePkce = true;
-                options.ResponseMode = "query";
-
-                options.Scope.Add(Configuration["InteractiveServiceSettings.Scopes:0"]);
-                options.SaveTokens = true;
+            .AddGoogle(options => {
+                options.ClientId = "778144477795-537mftd5abkqm330aui41mv07j9j1rhh.apps.googleusercontent.com";
+                options.ClientSecret = "7-rz7qq58Np3AjAaXumSCJmO";
+                options.CallbackPath = "/auth";
             });
 
             services.Configure<OtherSettings>(Configuration.GetSection($"OtherSettings:{env.EnvironmentName}"));
