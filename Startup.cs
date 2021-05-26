@@ -43,6 +43,7 @@ namespace ScarletMVC
                 options.CallbackPath = "/auth";
                 // display page to select which google account to login
                 options.AuthorizationEndpoint += "?prompt=consent";
+                options.SaveTokens = true;
             });
 
             services.Configure<OtherSettings>(Configuration.GetSection($"OtherSettings:{env.EnvironmentName}"));

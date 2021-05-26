@@ -1,6 +1,33 @@
+@using Microsoft.AspNetCore.Authentication
 @{
     ViewData["Title"] = "Privacy Policy";
 }
 <h1>@ViewData["Title"]</h1>
 
 <p>Use this page to detail your site's privacy policy.</p>
+
+<div class="container">
+    <h3>Tokens</h3>
+    <p>
+        <span style="color: blue">Id Token :</span>
+        <strong style="color: green">@await ViewContext.HttpContext.GetTokenAsync("id_token")</strong>
+    </p>
+
+    <p>
+        <span style="color: blue">Access Token :</span>
+        <strong style="color: green">@await ViewContext.HttpContext.GetTokenAsync("access_token")</strong>
+    </p>
+
+    <p>
+        <span style="color: blue">Refresh Token :</span>
+        <strong style="color: green">@await ViewContext.HttpContext.GetTokenAsync("refresh_token")</strong>
+    </p>
+
+    @foreach (var claim in User.Claims)
+    {
+        <div>
+            <span style="color: blue">@claim.Type :</span>
+            <strong style="color: green">@claim.Value</strong>
+        </div>
+    }
+</div> 
