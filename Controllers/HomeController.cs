@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ScarletMVC.Models;
 using ScarletMVC.Services;
+using Microsoft.AspNetCore.Authentication.Google;
 
 namespace ScarletMVC.Controllers
 {
@@ -79,12 +80,17 @@ namespace ScarletMVC.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync();
-            return Redirect("/");
+            return Redirect(@"https://www.google.com/accounts/logout?continue=https://appengine.google.com/_ah/logout?continue=https://localhost:5021");
         }
 
-        public void Login()
+        public IActionResult Login()
         {
+            var props = new AuthenticationProperties
+            {
+                RedirectUri = "https://localhost:5021",
+            };
 
+            return Challenge(props, GoogleDefaults.AuthenticationScheme);
         }
     }
 }

@@ -41,6 +41,8 @@ namespace ScarletMVC
                 options.ClientId = "778144477795-537mftd5abkqm330aui41mv07j9j1rhh.apps.googleusercontent.com";
                 options.ClientSecret = "7-rz7qq58Np3AjAaXumSCJmO";
                 options.CallbackPath = "/auth";
+                // display page to select which google account to login
+                options.AuthorizationEndpoint += "?prompt=consent";
             });
 
             services.Configure<OtherSettings>(Configuration.GetSection($"OtherSettings:{env.EnvironmentName}"));
