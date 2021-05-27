@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -14,6 +15,12 @@ using ScarletMVC.Services;
 
 namespace ScarletMVC
 {
+    public class GoogleAuthentication {
+        public string ClientId { get; set; }
+        public string ClientSecret { get; set; }
+        public string CallbackPath { get; set; }
+        public string Authority { get; set; }
+    }
     public class Startup
     {
         private readonly IWebHostEnvironment env;
@@ -31,22 +38,32 @@ namespace ScarletMVC
         {
             services.AddControllersWithViews();
 
+            var googleAuthentication = Configuration.GetSection("GoogleAuthentication").Get<GoogleAuthentication>();
+
             services.AddAuthentication(options => {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = "GoogleOIDC";
             })
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options => {
-                options.Authority = Configuration[$"InteractiveServiceSettings:{env.EnvironmentName}:AuthorityUrl"];
-                options.ClientId = Configuration[$"InteractiveServiceSettings:{env.EnvironmentName}:ClientId"];
-                options.ClientSecret = Configuration[$"InteractiveServiceSettings:{env.EnvironmentName}:ClientSecret"];
-
-                options.ResponseType = "code";
-                options.UsePkce = true;
-                options.ResponseMode = "query";
-
-                options.Scope.Add(Configuration["InteractiveServiceSettings.Scopes:0"]);
+            .AddOpenIdConnect("GoogleOIDC", options => {
+                options.Authority = googleAuthentication.Authority; 
+                options.ClientId = googleAuthentication.ClientId;
+                options.ClientSecret = googleAuthentication.ClientSecret;
+                options.CallbackPath = googleAuthentication.CallbackPath;
                 options.SaveTokens = true;
+                options.Events = new OpenIdConnectEvents()
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        if (context.Principal.Claims
+                            .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value == "109979528005478075270")
+                        {
+                            var claim = new Claim(ClaimTypes.Role, "Admin");
+                            var claimIdentity = context.Principal.Identity as ClaimsIdentity;
+                            claimIdentity.AddClaim(claim);
+                        }
+                    }
+                };
             });
 
             services.Configure<OtherSettings>(Configuration.GetSection($"OtherSettings:{env.EnvironmentName}"));

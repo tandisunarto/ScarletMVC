@@ -36,6 +36,7 @@ namespace ScarletMVC.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Privacy()
         {
             return View();
@@ -73,6 +74,22 @@ namespace ScarletMVC.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            return Redirect(@"https://www.google.com/accounts/logout?continue=https://appengine.google.com/_ah/logout?continue=https://localhost:5021");
+        }
+
+        public IActionResult Login()
+        {
+            var props = new AuthenticationProperties
+            {
+                RedirectUri = "https://localhost:5021",
+            };
+
+            return Challenge(props,"GoogleOIDC");
         }
     }
 }
